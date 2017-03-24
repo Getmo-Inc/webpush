@@ -1,16 +1,15 @@
-import Lib from './Lib';
-import Support from './helpers/Support';
+import Webpush from '../Lib/Webpush';
+import Base from './Base';
 
-export default class {
+export default class extends Base {
 
     constructor() {
-        this.support = new Support();
-        this.platform = support.getPlatform();
+        super();
     }
 
     _getAppID(setup){
         let appid = null;
-        switch (platform) {
+        switch (this.platform) {
             case 'CHROME':
                 if (setup.appid.chrome === false) {
                     console.warn('Chrome Disabled');
@@ -49,7 +48,6 @@ export default class {
 
     create(setup) {
 
-        // VALIDATION
         if (window.location.href.indexOf('https') === -1) {
             console.error('You are NOT using a "https" connection, web-push only works on secured pages.');
             return;
@@ -62,11 +60,11 @@ export default class {
             console.error('"appid" must be an Object');
             return;
         }
-        if (platform !== 'CHROME' && platform !== 'SAFARI' && platform !== 'FIREFOX') {
+        if (this.platform !== 'CHROME' && this.platform !== 'SAFARI' && this.platform !== 'FIREFOX') {
             console.info('Platform not Allowed for web-push:', [window.navigator.vendor, window.navigator.userAgent]);
             return;
         }
-        if (!support.checkAllFeatures()) {
+        if (!this.support.checkAllFeatures()) {
             console.error('This browser doesn\'t have all features to receive web-push.');
             return;
         }
@@ -77,15 +75,12 @@ export default class {
             return;
         }
 
-        let lib = new Lib();
-
-        lib.params.set({
+        this.params.set({
             devid: setup.devid,
             appid: appid,
-            platform: platform
+            platform: this.platform
         });
 
-        return lib;
+        return new Webpush();
     }
-
 }
