@@ -1,4 +1,4 @@
-import Webpush from '../Lib/Webpush';
+import Webpush from './Webpush';
 import Base from './Base';
 
 export default class extends Base {
@@ -44,12 +44,13 @@ export default class extends Base {
                 appid = setup.appid.firefox;
                 break;
         }
+        return appid;
     }
 
     create(setup) {
 
         if (window.location.href.indexOf('https') === -1) {
-            console.error('You are NOT using a "https" connection, web-push only works on secured pages.');
+            console.error('Unless you\'re using localhost, the Push API requires HTTPS');
             return;
         }
         if (!setup.devid || setup.devid === 'DEVID') {
@@ -71,7 +72,7 @@ export default class extends Base {
 
         const appid = this._getAppID(setup);
         if (!appid || appid === 'APPID') {
-            console.error('"appid" misconfigured, consult the docs');
+            console.error('"appid" misconfigured, consult the docs', appid);
             return;
         }
 
@@ -81,6 +82,6 @@ export default class extends Base {
             platform: this.platform
         });
 
-        return new Webpush();
+        return new Webpush('3.0.0', 'https://local.smartpush.api');
     }
 }

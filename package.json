@@ -3,7 +3,7 @@
   "name": "Webpush",
   "version": "3.0.0",
   "description": "Webpush Javascript Client Library",
-  "main": "src/index.js",
+  "main": "src/entry/index.js",
   "keywords": [
     "smartpush",
     "webpush",
