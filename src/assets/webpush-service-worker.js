@@ -1,5 +1,5 @@
 var apiEndPoint = 'https://api.getmo.com.br',
-    defaultIcon = '/lib-default-icon.png';
+    defaultIcon = '/webpush-default-icon.png';
 
 function indexedDb() {
     return new Promise(function(resolve, reject) {

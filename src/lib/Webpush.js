@@ -64,7 +64,7 @@ export default class extends Base {
     }
 
     _sendMessageToServiceWorker(message) {
-        return new Promise(function(resolve, reject) {
+        return new Promise((resolve, reject) => {
             let messageChannel = new MessageChannel();
             messageChannel.port1.onmessage = function(event) {
                 if (event.data.error) {
@@ -106,14 +106,9 @@ export default class extends Base {
     }
 
     _getSubscriptionData(data) {
-
-        let hwid = this.params.get('hwid');
-        if (!hwid) {
-            hwid = 'null';
-        }
-        let params = {
+        return this._encodeParams({
             appid: this.params.get('appid'),
-            uuid: hwid,
+            uuid: this.params.get('hwid') || null,
             platform: this.platform,
             regid: data.regid,
             endpoint: data.endpoint,
@@ -122,9 +117,7 @@ export default class extends Base {
             device: navigator.userAgent.match(/Chrom(e|ium|eframe)\/([0-9]+)\./i)[0],
             manufacturer: navigator.vendor,
             framework: this.platform === 'CHROME' ? (navigator.platform ? navigator.platform : navigator.oscpu) : (navigator.oscpu ? navigator.oscpu : navigator.platform)
-        };
-
-        return this._encodeParams(params);
+        });
     }
 
     getUser() {
@@ -147,8 +140,7 @@ export default class extends Base {
 
                                     if (!subscription) {
                                         console.warn('Cannot access subscription object to get user.');
-                                        reject('default');
-                                        return;
+                                        return reject('default');
                                     }
                                     if (this.params.get('hwid')) {
                                         let data = this._getDataFromSubscription(subscription);
@@ -353,7 +345,7 @@ export default class extends Base {
                                     console.error(json.message);
                                     reject('error');
                                 }
-                            }, function (e) {
+                            }, (e) => {
                                 console.error('Cannot register extra data for this device!', e);
                                 reject('error');
                             });
@@ -390,7 +382,7 @@ export default class extends Base {
 
                             navigator.serviceWorker.ready.then((registration) => {
 
-                                registration.pushManager.getSubscription().then(function(subscription) {
+                                registration.pushManager.getSubscription().then((subscription) => {
 
                                     if (!subscription) {
                                         console.error('Cannot access subscription object to un-subscribe.');

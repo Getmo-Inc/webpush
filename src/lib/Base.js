@@ -1,11 +1,11 @@
-import Events from '../helpers/Events';
+//import Events from '../helpers/Events';
 import Support from '../helpers/Support';
 import Params from '../helpers/Params';
 
 export default class {
 
     constructor() {
-        this.events = new Events();
+        //this.events = new Events();
         this.support = new Support();
         this.params = new Params();
         this.platform = this.support.getPlatform();
@@ -30,8 +30,7 @@ export default class {
     }
 
     _request(url, data, method) {
-        let params = this._encodeParams(data);
-        return new Promise(function (resolve, reject) {
+        return new Promise((resolve, reject) => {
             if (!url || typeof data !== 'object') {
                 reject('URL: ' + url + ' | DATA: ' + data);
                 return false;
@@ -47,17 +46,16 @@ export default class {
                 headers: {
                     'Content-type': 'application/x-www-form-urlencoded; charset=UTF-8'
                 },
-                body: params
-            }).then(function (result) {
-                result.json().then(function (json) {
+                body: this._encodeParams(data)
+            }).then((result) => {
+                result.json().then((json) => {
                     resolve(json);
-                }, function (e) {
+                }).catch((e) => {
                     reject(e);
                 });
-            }, function (e) {
+            }).catch((e) => {
                 reject(e);
             });
         });
     }
-
 }
