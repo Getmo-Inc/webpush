@@ -5,6 +5,7 @@ export default class extends Base {
 
     constructor() {
         super();
+        this.version = '3.0.0';
     }
 
     _getAppID(setup){
@@ -76,12 +77,26 @@ export default class extends Base {
             return;
         }
 
+        let defaultIcon;
+        if (setup.defaultIcon && setup.defaultIcon+''.indexOf('http') !== -1) {
+            defaultIcon = setup.defaultIcon;
+        } else {
+            defaultIcon = '/webpush-default-icon.png';
+        }
+
+        let apiEndPoint = 'https://api.getmo.com.br';
+        if (setup.doNotUse === true) {
+            apiEndPoint = 'https://local.smartpush.api';
+        }
+
         this.params.set({
             devid: setup.devid,
             appid: appid,
-            platform: this.platform
+            platform: this.platform,
+            apiEndPoint: apiEndPoint,
+            defaultIcon: defaultIcon
         });
 
-        return new Webpush('3.0.0', 'https://local.smartpush.api');
+        return new Webpush(this.version);
     }
 }

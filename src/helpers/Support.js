@@ -33,6 +33,8 @@ export default class {
                 return 'PushManager' in window;
             case 'pushNotification':
                 return 'pushNotification' in window.safari;
+            case 'indexedDB':
+                return 'indexedDB' in window;
         }
 
         return true;
@@ -113,6 +115,10 @@ export default class {
             }
             if (!this._checkFeature('PushManager')) {
                 console.warn('"PushManager" is not supported.');
+                return;
+            }
+            if (!this._checkFeature('indexedDB')) {
+                console.warn('"indexedDB" is not supported.');
                 return;
             }
         } else if (platform === 'SAFARI') {

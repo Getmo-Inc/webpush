@@ -8,26 +8,11 @@ export default class {
             regid: null,
             alias: null,
             platform: null,
-            safariPushID: null
+            safariPushID: null,
+            apiEndPoint: null,
+            defaultIcon: null
         };
     }
-
-    get(name, lsName) {
-        if (this.data[name]) {
-            return this.data[name];
-        }
-        lsName = lsName || 'smartpush_webpush';
-        try {
-            let lsParams = JSON.parse(window.localStorage.getItem(lsName));
-            if (lsParams[name] || lsParams[name] === false) {
-                this.data[name] = lsParams[name];
-                return lsParams[name];
-            }
-            return null;
-        } catch (e) {
-            return null;
-        }
-    };
 
     set(newParams, lsName) {
         let key1, key2, lsParams;
@@ -49,5 +34,31 @@ export default class {
             window.localStorage.setItem(lsName, JSON.stringify(this.data));
         }
     };
+
+    get(name, lsName) {
+        if (this.data[name]) {
+            return this.data[name];
+        }
+        lsName = lsName || 'smartpush_webpush';
+        try {
+            let lsParams = JSON.parse(window.localStorage.getItem(lsName));
+            if (lsParams[name] || lsParams[name] === false) {
+                this.data[name] = lsParams[name];
+                return lsParams[name];
+            }
+            return null;
+        } catch (e) {
+            return null;
+        }
+    };
+
+    getAll(lsName) {
+        lsName = lsName || 'smartpush_webpush';
+        try {
+            return JSON.parse(window.localStorage.getItem(lsName));
+        } catch (e) {
+            return null;
+        }
+    }
 
 }

@@ -2,11 +2,11 @@ import Base from './Base';
 
 export default class extends Base {
 
-    constructor(endpoint) {
+    constructor() {
         super();
-        this.notificationEndPoint = endpoint + '/notifications';
-        this.tagEndPoint = endpoint + '/tag';
-        this.optOutEndPoint = endpoint + '/device/optout';
+        this.notificationEndPoint = this.params.get('apiEndpoint') + '/notifications';
+        this.tagEndPoint = this.params.get('apiEndpoint') + '/tag';
+        this.optOutEndPoint = this.params.get('apiEndpoint') + '/device/optout';
     }
 
     getLastNotifications(dateFormat) {
@@ -22,7 +22,7 @@ export default class extends Base {
                 browserVersion: this.support.getBrowserVersion()
             }, 'POST').then((json) => {
                 for (i = 0; i < json.length; i++) {
-                    json[i].payload.icon = (json[i].payload.icon && (json[i].payload.icon + ''.indexOf('http') !== -1)) ? json[i].payload.icon : (that.params.get('setupEndPoint') ? that.params.get('setupEndPoint') : '') + '/lib-default-icon.png';
+                    json[i].payload.icon = (json[i].payload.icon && (json[i].payload.icon + ''.indexOf('http') !== -1)) ? json[i].payload.icon : '/webpush-default-icon.png';
                 }
                 resolve(json);
             }).catch((e) => {

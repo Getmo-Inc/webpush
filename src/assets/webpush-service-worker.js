@@ -1,6 +1,3 @@
-var apiEndPoint = 'https://api.getmo.com.br',
-    defaultIcon = '/webpush-default-icon.png';
-
 function indexedDb() {
     return new Promise(function(resolve, reject) {
         var request = self.indexedDB.open('webpush.db', 1);
@@ -28,12 +25,7 @@ function hold(data) {
                         cursor.continue();
                     }
                 };
-                var add = db.transaction(['info'], 'readwrite').objectStore('info').add({
-                    devid: data.devid,
-                    appid: data.appid,
-                    hwid: data.hwid,
-                    setupEndPoint: data.setupEndPoint
-                });
+                var add = db.transaction(['info'], 'readwrite').objectStore('info').add(data);
                 add.onsuccess = function(e) {
                     resolve();
                 };
@@ -66,28 +58,47 @@ function getInfo() {
 
 function postHit(pushid, action) {
     return getInfo().then(function(data) {
-        if (!data.devid || !data.appid || !data.hwid) {
-            console.error('We are unable to get all information from IndexedDB');
+        if (!data.devid || !data.appid || !data.hwid || !data.apiEndPoint) {
+            console.error('We are unable to get all information from IndexedDB', data);
             return;
         }
-        setTimeout(function () {
-            fetch(apiEndPoint + '/hit/info', {
-                method: 'post',
-                headers: {
-                    'Content-type': 'application/x-www-form-urlencoded; charset=UTF-8'
-                },
-                body: 'devid='+data.devid+'&appid='+data.appid+'&uuid='+data.hwid+'&action='+action+'&campaignId='+pushid
-            });
-        }, Math.random() * (120000 - 30000) + 30000);
+        fetch(data.apiEndPoint + '/hit/info', {
+            method: 'post',
+            headers: {
+                'Content-type': 'application/x-www-form-urlencoded; charset=UTF-8'
+            },
+            body: 'devid='+data.devid+'&appid='+data.appid+'&uuid='+data.hwid+'&action='+action+'&campaignId='+pushid
+        });
     }, function(e){
         console.error(e);
     });
 }
 
+function getVibrationPattern(vibration) {
+    var array = [];
+    if (vibration && vibration !== 'NONE') {
+        switch (vibration) {
+            case 'NORMAL':
+                array = [300,100,300];
+                break;
+            case 'ALERT':
+                array = [200,100,200,100,300];
+                break;
+            case 'URGENT':
+                array = [100,100,100,100,100,100,300];
+                break;
+            default:
+                array = [];
+                break;
+        }
+    }
+    return array;
+}
+
 self.addEventListener('message', function(e) {
     if (e.data.test && e.data.test === true) {
         e.ports[0].postMessage({received: true});
-    } else if (e.data) {
+    } else if (e.data && typeof e.data === 'object') {
         hold(e.data).then(function(){
             e.ports[0].postMessage({received: true});
         }, function(e){
@@ -107,74 +118,27 @@ self.addEventListener('activate', function(e) {
 self.addEventListener('push', function(e) {
     e.waitUntil(self.registration.pushManager.getSubscription().then(function(subscription) {
         return getInfo().then(function(data){
-            if (!data.devid || !data.appid || !data.hwid) {
-                console.error('We are unable to get all information from IndexedDB');
-                return;
+            if (!data.devid || !data.appid || !data.hwid || data.defaultIcon) {
+                return console.error('We are unable to get all information from IndexedDB', data);
             }
-
             if (e.data) {
                 var payload = e.data.json();
                 return self.registration.showNotification(payload.title, {
                     body: payload.text,
-                    icon: (payload.icon && (payload.icon+''.indexOf('http') !== -1)) ? payload.icon : (data.setupEndPoint || '') + defaultIcon,
-                    requireInteraction: payload.requireInteraction && payload.requireInteraction == 'true' ? true : false,
-                    tag: payload.campaignId+','+payload.clickUrl
+                    dir: payload.direction || 'auto',
+                    icon: (payload.icon && (payload.icon+''.indexOf('http') !== -1)) ? payload.icon : data.defaultIcon,
+                    image: (payload.image && (payload.image+''.indexOf('http') !== -1)) ? payload.image : '',
+                    requireInteraction: payload.requireInteraction && payload.requireInteraction === 'true' || false,
+                    tag: payload.campaignId,
+                    vibrate: getVibrationPattern(payload.vibration),
+                    data: {
+                        pushId: payload.campaignId,
+                        clickUrl: payload.clickUrl,
+                    }
                 });
-            }
-
-            // 50+
-            // https://developers.google.com/web/updates/2016/03/notifications?hl=en
-
-            // self.registration.showNotification('New message from Alice', {
-            //     actions: [
-            //         {action: 'like', title: 'Like', icon: 'https://example/like.png'},
-            //         {action: 'reply', title: 'Reply', icon: 'https://example/reply.png'}]
-            // });
-
-            // self.registration.showNotification('Oi!', {
-            //     'renotify': true,
-            //     'tag': 'tag-id-1'
-            // });
-
-            // self.registration.showNotification('Best day evar!', {
-            //     'timestamp': 360370800000
-            // });
-
-            // serviceWorkerRegistration.showNotification(title, {
-            //     "body": "Did you make a $1,000,000 purchase at Dr. Evil...",
-            //     "icon": "images/ccard.png",
-            //     "vibrate": [200, 100, 200, 100, 200, 100, 400],
-            //     "tag": "request",
-            //     "actions": [
-            //     { "action": "yes", "title": "Yes", "icon": "images/yes.png" },
-            //     { "action": "no", "title": "No", "icon": "images/no.png" }
-            // ]
-            // });
-
-
-            var regid = null;
-            if ('subscriptionId' in subscription) {
-                regid = subscription.subscriptionId;
             } else {
-                var split = subscription.endpoint.split('/');
-                regid = split[(split.length-1)];
+                console.error('payload don\'t have data object');
             }
-
-            var url = apiEndPoint + '/push/payload?devid='+data.devid+'&appid='+data.appid+'&hwid='+data.hwid+'&regid='+regid;
-            return fetch(url).then(function(response) {
-                return response.json().then(function(json) {
-                    return self.registration.showNotification(json.payload.title, {
-                        body: json.payload.text,
-                        icon: (json.payload.icon && (json.payload.icon+''.indexOf('http') !== -1)) ? json.payload.icon : (data.setupEndPoint ? data.setupEndPoint : '') + defaultIcon,
-                        requireInteraction: json.payload.requireInteraction && json.payload.requireInteraction == 'true' ? true : false,
-                        tag: json.payload.campaignId+','+json.payload.clickUrl
-                    });
-                }).catch(function(e){
-                    console.error('payload json() catch Error', e);
-                });
-            }).catch(function (e) {
-                console.error('Fetch payload Error', e);
-            });
         }, function(e){
             console.error(e);
         });
@@ -182,34 +146,21 @@ self.addEventListener('push', function(e) {
 });
 
 self.addEventListener('notificationclick', function(e) {
-    var temp = e.notification.tag.split(','), pushid = temp[0], url = temp[1] + '';
-
+    var data = e.notification.data, pushId = data.pushId, clickUrl = data.clickUrl;
     e.notification.close();
-
-    if (url && url.indexOf('http') !== -1) {
+    if (clickUrl && clickUrl.indexOf('http') !== -1) {
         e.waitUntil(
             clients.matchAll({
                 type: "window"
             }).then(function () {
-                if (clients.openWindow) {
-                    return clients.openWindow(url);
-                }
+                if (clients.openWindow) return clients.openWindow(clickUrl);
             })
         );
     }
-
-    if (pushid) {
-        return postHit(pushid, 'CLICKED');
-    }
+    if (pushId) return postHit(pushId, 'CLICKED');
 });
 
 self.addEventListener('notificationclose', function (e) {
-    var temp = e.notification.tag.split(','), pushid = temp[0];
-    if (pushid) {
-        return postHit(pushid, 'DISMISSED');
-    }
+    var data = e.notification.data,pushId = data.pushId;
+    if (pushId) return postHit(pushId, 'DISMISSED');
 });
-
-
-// es6 syntax ?
-// self.addEventListener('notificationclose', e => console.log(e.notification));

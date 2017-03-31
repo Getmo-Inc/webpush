@@ -3,24 +3,15 @@ import Base from './Base';
 
 export default class extends Base {
 
-    constructor(version, endpoint) {
+    constructor(version) {
         super();
+
         this.version = version;
 
-        this.user = new User(endpoint);
+        this.registerEndPoint = this.params.get('apiEndpoint') + '/device';
+        this.safariEndPoint = this.params.get('apiEndpoint') + '/safari';
 
-        this.control = {
-            hasSetup: false,
-            eventForPostMassageIsListening: false,
-            register: {
-                tries: 0,
-                waitInSeconds: 10,
-                maxTimeoutInMinutes: 1
-            }
-        };
-
-        this.registerEndPoint = endpoint + '/device';
-        this.safariEndPoint = endpoint + '/safari';
+        this.user = new User();
     }
 
     _initializeServiceWorker() {
@@ -31,11 +22,17 @@ export default class extends Base {
                 navigator.serviceWorker.ready.then(() => {
 
                     this._sendMessageToServiceWorker({test: true}).then(() => {
+                        this._sendMessageToServiceWorker(this.params.getAll()).then((e) => {
+                            console.log('OK ??');
+                        });
                         resolve()
                     }).catch((e) => {
                         console.debug(e);
                         setTimeout(() => {
                             this._sendMessageToServiceWorker({test: true}).then(() => {
+                                this._sendMessageToServiceWorker(this.params.getAll()).then((e) => {
+                                    console.log('OK ?? 2');
+                                });
                                 resolve()
                             }).catch(() => {
                                 reject('Service worker don\'t respond');
@@ -177,7 +174,7 @@ export default class extends Base {
                         reject('error');
                 }
             } else if (this.platform === 'SAFARI') {
-                let permissionData = window.safari.pushNotification.permission(that.params.get('safariPushID'));
+                let permissionData = window.safari.pushNotification.permission(this.params.get('safariPushID'));
                 switch (permissionData.permission) {
                     case 'default':
                         reject('default');
@@ -263,7 +260,9 @@ export default class extends Base {
                                                             devid: this.params.get('devid'),
                                                             appid: this.params.get('appid'),
                                                             hwid: json.hwid,
-                                                            regid: data.regid
+                                                            regid: data.regid,
+                                                            apiEndPoint: this.params.get('apiEndPoint'),
+                                                            defaultIcon: this.params.get('defaultIcon')
                                                         }).then(() => {
                                                             resolve(this.user);
                                                         }).catch((e) => {
