@@ -116,9 +116,9 @@ self.addEventListener('activate', function(e) {
 });
 
 self.addEventListener('push', function(e) {
-    e.waitUntil(self.registration.pushManager.getSubscription().then(function(subscription) {
+    e.waitUntil(self.registration.pushManager.getSubscription().then(function() {
         return getInfo().then(function(data){
-            if (!data.devid || !data.appid || !data.hwid || data.defaultIcon) {
+            if (!data.devid || !data.appid || !data.hwid || !data.defaultIcon) {
                 return console.error('We are unable to get all information from IndexedDB', data);
             }
             if (e.data) {
