@@ -4,9 +4,9 @@ export default class extends Base {
 
     constructor() {
         super();
-        this.notificationEndPoint = this.params.get('apiEndpoint') + '/notifications';
-        this.tagEndPoint = this.params.get('apiEndpoint') + '/tag';
-        this.optOutEndPoint = this.params.get('apiEndpoint') + '/device/optout';
+        this.notificationEndPoint = this.params.get('apiEndPoint') + '/notifications';
+        this.tagEndPoint = this.params.get('apiEndPoint') + '/tag';
+        this.optOutEndPoint = this.params.get('apiEndPoint') + '/device/optout';
     }
 
     getLastNotifications(dateFormat) {

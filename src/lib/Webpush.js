@@ -8,8 +8,8 @@ export default class extends Base {
 
         this.version = version;
 
-        this.registerEndPoint = this.params.get('apiEndpoint') + '/device';
-        this.safariEndPoint = this.params.get('apiEndpoint') + '/safari';
+        this.registerEndPoint = this.params.get('apiEndPoint') + '/device';
+        this.safariEndPoint = this.params.get('apiEndPoint') + '/safari';
 
         this.user = new User();
     }
@@ -22,18 +22,14 @@ export default class extends Base {
                 navigator.serviceWorker.ready.then(() => {
 
                     this._sendMessageToServiceWorker({test: true}).then(() => {
-                        this._sendMessageToServiceWorker(this.params.getAll()).then((e) => {
-                            console.log('OK ??');
-                        });
-                        resolve()
+                        this._sendMessageToServiceWorker(this.params.getAll());
+                        resolve();
                     }).catch((e) => {
                         console.debug(e);
                         setTimeout(() => {
                             this._sendMessageToServiceWorker({test: true}).then(() => {
-                                this._sendMessageToServiceWorker(this.params.getAll()).then((e) => {
-                                    console.log('OK ?? 2');
-                                });
-                                resolve()
+                                this._sendMessageToServiceWorker(this.params.getAll());
+                                resolve();
                             }).catch(() => {
                                 reject('Service worker don\'t respond');
                             });
@@ -194,7 +190,7 @@ export default class extends Base {
                         reject('error');
                 }
             } else {
-                console.log('Platform isn\'t supported');
+                console.warn('Platform isn\'t supported');
                 reject('error');
             }
         });
