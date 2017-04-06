@@ -199,7 +199,6 @@ export default class extends Base {
                 this._getSafariPushId().then((safariPushID) => {
 
                     let permissionData = window.safari.pushNotification.permission(safariPushID);
-                    console.debug('permissionData', permissionData);
                     switch (permissionData.permission) {
                         case 'default':
                             reject('default');
@@ -338,8 +337,6 @@ export default class extends Base {
             } else if (this.platform === 'SAFARI') {
 
                 this._getSafariPushId().then((safariPushID) => {
-                    console.log('YEAH');
-                    console.debug('this.safariEndPoint', this.safariEndPoint);
                     window.safari.pushNotification.requestPermission(
                         this.safariEndPoint,
                         safariPushID,
@@ -348,7 +345,6 @@ export default class extends Base {
                             appid: this.params.get('appid')
                         },
                         (permissionData) => {
-                            console.log('permissionData', permissionData);
                             if (permissionData.permission === 'default') {
                                 reject('default');
                             } else if (permissionData.permission === 'granted') {
@@ -381,7 +377,6 @@ export default class extends Base {
                                     reject('error');
                                 });
                             } else if (permissionData.permission === 'denied') {
-                                console.log('WTF');
                                 reject('denied');
                             } else {
                                 console.error('Unprocessable permission: '+permissionData.permission);
