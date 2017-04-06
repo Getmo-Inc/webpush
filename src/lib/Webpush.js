@@ -107,9 +107,34 @@ export default class extends Base {
             endpoint: data.endpoint,
             p256dh: data.p256dh,
             auth: data.auth,
-            device: navigator.userAgent.match(/Chrom(e|ium|eframe)\/([0-9]+)\./i)[0],
-            manufacturer: navigator.vendor,
+            device: this.platform === 'CHROME' ? navigator.userAgent.match(/Chrom(e|ium|eframe)\/([0-9]+)\./i)[0] : navigator.userAgent.match(/Firefox\/([0-9]+)\./i)[0],
+            manufacturer: this.platform === 'CHROME' ? navigator.vendor : 'Mozilla',
             framework: this.platform === 'CHROME' ? (navigator.platform ? navigator.platform : navigator.oscpu) : (navigator.oscpu ? navigator.oscpu : navigator.platform)
+        });
+    }
+
+    _getSafariPushId() {
+        return new Promise((resolve, reject) => {
+            if (this.params.get('safariPushID')) {
+                return resolve(this.params.get('safariPushID'));
+            }
+            this._request(this.safariEndPoint + '/getPushID', {
+                devid: this.params.get('devid'),
+                appid: this.params.get('appid')
+            }).then((json) => {
+                if (json.safariPushID) {
+                    this.params.set({
+                        safariPushID: json.safariPushID
+                    });
+                    resolve(json.safariPushID);
+                } else {
+                    console.error('Cannot fetch safariPushID', json);
+                    reject();
+                }
+            }).catch((e) => {
+                console.error('Cannot fetch safari app Push ID', e);
+                reject();
+            });
         });
     }
 
@@ -170,25 +195,32 @@ export default class extends Base {
                         reject('error');
                 }
             } else if (this.platform === 'SAFARI') {
-                let permissionData = window.safari.pushNotification.permission(this.params.get('safariPushID'));
-                switch (permissionData.permission) {
-                    case 'default':
-                        reject('default');
-                        break;
-                    case 'denied':
-                        reject('denied');
-                        break;
-                    case 'granted':
-                        if (this.params.get('hwid') && this.params.get('regid')) {
-                            resolve(this.user);
-                        } else {
+
+                this._getSafariPushId().then((safariPushID) => {
+
+                    let permissionData = window.safari.pushNotification.permission(safariPushID);
+                    console.debug('permissionData', permissionData);
+                    switch (permissionData.permission) {
+                        case 'default':
                             reject('default');
-                        }
-                        break;
-                    default:
-                        console.error('Unprocessable permission: ' + permissionData.permission)
-                        reject('error');
-                }
+                            break;
+                        case 'denied':
+                            reject('denied');
+                            break;
+                        case 'granted':
+                            if (this.params.get('hwid') && this.params.get('regid')) {
+                                resolve(this.user);
+                            } else {
+                                reject('default');
+                            }
+                            break;
+                        default:
+                            console.error('Unprocessable permission: ' + permissionData.permission)
+                            reject('error');
+                    }
+                }).catch(() => {
+                    reject('error');
+                });
             } else {
                 console.warn('Platform isn\'t supported');
                 reject('error');
@@ -297,62 +329,69 @@ export default class extends Base {
                                     reject('error');
                             }
                         });
-
                         break;
+
                     default:
                         console.error('Unprocessable permission: ' + Notification.permission);
                         reject('error');
                 }
             } else if (this.platform === 'SAFARI') {
 
-                window.safari.pushNotification.requestPermission(
-                    this.safariEndPoint,
-                    this.params.get('safariPushID'),
-                    {
-                        devid: this.params.get('devid'),
-                        appid: this.params.get('appid')
-                    },
-                    (permissionData) => {
-                        if (permissionData.permission === 'default') {
-                            reject('default');
-                        } else if (permissionData.permission === 'granted') {
-                            this._request(this.registerEndPoint, {
-                                appid: this.params.get('appid'),
-                                uuid: 'null',
-                                platform: this.platform,
-                                regid: permissionData.deviceToken,
-                                device: 'Safari/' + window.navigator.userAgent.match(/Version\/(([0-9]+)(\.|[0-9])+)/i)[1],
-                                manufacturer: window.navigator.vendor,
-                                framework: window.navigator.platform || window.navigator.oscpu
-                            }, 'POST').then((json) => {
+                this._getSafariPushId().then((safariPushID) => {
+                    console.log('YEAH');
+                    console.debug('this.safariEndPoint', this.safariEndPoint);
+                    window.safari.pushNotification.requestPermission(
+                        this.safariEndPoint,
+                        safariPushID,
+                        {
+                            devid: this.params.get('devid'),
+                            appid: this.params.get('appid')
+                        },
+                        (permissionData) => {
+                            console.log('permissionData', permissionData);
+                            if (permissionData.permission === 'default') {
+                                reject('default');
+                            } else if (permissionData.permission === 'granted') {
+                                this._request(this.registerEndPoint, {
+                                    appid: this.params.get('appid'),
+                                    uuid: 'null',
+                                    platform: this.platform,
+                                    regid: permissionData.deviceToken,
+                                    device: 'Safari/' + window.navigator.userAgent.match(/Version\/(([0-9]+)(\.|[0-9])+)/i)[1],
+                                    manufacturer: window.navigator.vendor,
+                                    framework: window.navigator.platform || window.navigator.oscpu
+                                }, 'POST').then((json) => {
 
-                                if (json.code === 200 && json.hwid) {
+                                    if (json.hwid) {
 
-                                    this.params.set({
-                                        hwid: json.hwid,
-                                        regid: permissionData.deviceToken,
-                                        alias: json.alias
-                                    });
+                                        this.params.set({
+                                            hwid: json.hwid,
+                                            regid: permissionData.deviceToken,
+                                            alias: json.alias
+                                        });
 
-                                    resolve(this.user);
+                                        resolve(this.user);
 
-                                } else {
-                                    console.error(json.message);
+                                    } else {
+                                        console.error(json.message);
+                                        reject('error');
+                                    }
+                                }, (e) => {
+                                    console.error('Cannot register extra data for this device!', e);
                                     reject('error');
-                                }
-                            }, (e) => {
-                                console.error('Cannot register extra data for this device!', e);
+                                });
+                            } else if (permissionData.permission === 'denied') {
+                                console.log('WTF');
+                                reject('denied');
+                            } else {
+                                console.error('Unprocessable permission: '+permissionData.permission);
                                 reject('error');
-                            });
-                        } else if (permissionData.permission === 'denied') {
-                            reject('denied');
-                        } else {
-                            console.error('Unprocessable permission: '+permissionData.permission);
-                            reject('error');
+                            }
                         }
-                    }
-                );
-
+                    );
+                }).catch(() => {
+                    reject('error');
+                });
             } else {
                 console.error('Platform isn\'t supported');
                 reject('error');
