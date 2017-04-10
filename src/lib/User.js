@@ -26,7 +26,7 @@ export default class extends Base {
                 }
                 resolve(json);
             }).catch((e) => {
-                console.error('Cannot fetch user Notifications', e);
+                this.log.error('Cannot fetch user Notifications', e);
                 reject(e);
             });
         });
@@ -49,7 +49,7 @@ export default class extends Base {
                 }
                 resolve(json);
             }).catch((e) => {
-                console.error('Cannot fetch user Unred Notifications', e);
+                this.log.error('Cannot fetch user Unred Notifications', e);
                 reject(e);
             });
         });

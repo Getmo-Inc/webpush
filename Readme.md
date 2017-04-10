@@ -1,6 +1,6 @@
 # Smartpush
 ---
-## Web Push SDK Documentation 3.0.1
+## Web Push SDK Documentation 3.0.2
 This lib activates the off-site web push service on your Web Browser. Remember that this new technology only works in secured environments, therefore you need to run it over a ``https://`` connection.
 
 ### What does the project do?
@@ -8,17 +8,17 @@ This project integrates off-site webpush notification system with **Smartpush AP
 
 ### How to install it?
 
-Download "Webpush Installation Files" (*.zip) from [https://cdn.getmo.com.br/webpush-pack-3.0.1.zip](https://cdn.getmo.com.br/webpush-pack-2.1.1.zip) and install the following files in the root of your website:
+Download "Webpush Installation Files" (*.zip) from [https://cdn.getmo.com.br/webpush-pack-3.0.2.zip](https://cdn.getmo.com.br/webpush-pack-2.1.1.zip) and install the following files in the root of your website:
 - webpush-chrome-manifest.json
 - webpush-service-worker.js
 - webpush-default-icon.png (customize the image before installation)
 
 After installation, load the current SDK version in your html page: 
-- ``https://cdn.getmo.com.br/webpush-lib-3.0.1.min.js``
+- ``https://cdn.getmo.com.br/webpush-lib-3.0.2.min.js``
 
 and you are ready to go!
 ```html
-<script src="https//cdn.getmo.com.br/webpush-lib-3.0.1.min.js"></script>
+<script src="https//cdn.getmo.com.br/webpush-lib-3.0.2.min.js"></script>
 ```
  
 
@@ -28,7 +28,7 @@ First of all: verify if Smartpush object is correctly loaded.
 
 ```javascript
 if (!Smartpush) {
-    console.error('The Smartpush lib was not loaded correctly.');
+    this.log.error('The Smartpush lib was not loaded correctly.');
     // Disable or hide your UI elements, "web push notifications" are not supported because the SDK was not loaded.
     return;
 }
@@ -172,7 +172,7 @@ user.getTag('TAG_NAME').then(function(result){
     
 }).catch(function(e) {
     
-    console.error(e);
+    this.log.error(e);
     // Do something when catch a error!
 
 });
@@ -198,7 +198,7 @@ user.addTag('TAG_NAME', 'TAG_VALUE', 'TAG_TYPE').then(function(result){
     
 }).catch(function(e) {
     
-    console.error(e);
+    this.log.error(e);
     // Do something when catch a error.
     
 });
@@ -224,7 +224,7 @@ user.removeTag('TAG_NAME', 'TAG_VALUE', 'TAG_TYPE').then(function(result){
     
 }).catch(function(e) {
     
-    console.error(e);
+    this.log.error(e);
     // Do something when catch a error.
     
 });
@@ -244,7 +244,7 @@ user.getUnreadNotifications().then(function(result){
     
 }).catch(function(e) {
     
-    console.error(e)
+    this.log.error(e)
     // Do something when catch a error.
     
 });
@@ -264,7 +264,7 @@ user.getLastNotifications().then(function(result){
     
 }).catch(function(e) {
     
-    console.error(e)
+    this.log.error(e)
     // Do something when catch a error.
     
 });
@@ -283,7 +283,7 @@ user.removeUnreadNotification(pushid).then(function(result){
     
 }, function(e) {
     
-    console.error(e);
+    this.log.error(e);
     // Do something when catch a error.
     
 });
@@ -302,7 +302,7 @@ user.removeAllUnreadNotifications().then(function(result){
     
 }, function(e) {
     
-    console.error(e);
+    this.log.error(e);
     // Do something when catch a error.
 
 });
@@ -322,7 +322,7 @@ var alias = user.getAlias();
 window.addEventListener('load', function() {
     
     if (!Smartpush) {
-        console.error('The Smartpush lib was not loaded correctly.');
+        this.log.error('The Smartpush lib was not loaded correctly.');
         // Disable or hide your UI elements, "web push notifications" are not supported because the SDK was not loaded.
         return;
     }
@@ -351,7 +351,7 @@ window.addEventListener('load', function() {
                 
             }).catch(function(e) {
                 
-                console.error(e)
+                this.log.error(e)
                 // Do something when catch a error.
                 
             });

@@ -25,7 +25,7 @@ export default class extends Base {
                         this._sendMessageToServiceWorker(this.params.getAll());
                         resolve();
                     }).catch((e) => {
-                        console.debug(e);
+                        this.log.error(e);
                         setTimeout(() => {
                             this._sendMessageToServiceWorker({test: true}).then(() => {
                                 this._sendMessageToServiceWorker(this.params.getAll());
@@ -37,19 +37,19 @@ export default class extends Base {
                     });
 
                 }).catch((e) => {
-                    console.error('Service Worker Cannot enter ready state', e);
+                    this.log.error('Service Worker Cannot enter ready state', e);
                     reject('error');
                 });
 
             }).catch((error) => {
                 if ((error + '').indexOf('Only secure origins are allowed') !== -1) {
-                    console.error(error);
+                    this.log.error(error);
                     reject(error);
                 } else if ((error + '').indexOf('The operation is insecure') !== -1) {
-                    console.error(error);
+                    this.log.error(error);
                     reject(error);
                 } else {
-                    console.error('Error during registering service worker', error);
+                    this.log.error('Error during registering service worker', error);
                     reject(error);
                 }
             });
@@ -92,7 +92,7 @@ export default class extends Base {
                 data.auth = btoa(String.fromCharCode.apply(null, new Uint8Array(auth)));
             }
         } catch (e) {
-            console.error(e);
+            this.log.error(e);
             return false;
         }
         return data;
@@ -128,11 +128,11 @@ export default class extends Base {
                     });
                     resolve(json.safariPushID);
                 } else {
-                    console.error('Cannot fetch safariPushID', json);
+                    this.log.error('Cannot fetch safariPushID', json);
                     reject();
                 }
             }).catch((e) => {
-                console.error('Cannot fetch safari app Push ID', e);
+                this.log.error('Cannot fetch safari app Push ID', e);
                 reject();
             });
         });
@@ -157,7 +157,7 @@ export default class extends Base {
                                 registration.pushManager.getSubscription().then((subscription) => {
 
                                     if (!subscription) {
-                                        console.warn('Cannot access subscription object to get user.');
+                                        this.log.warn('Cannot access subscription object to get user.');
                                         return reject('default');
                                     }
                                     if (this.params.get('hwid')) {
@@ -170,28 +170,28 @@ export default class extends Base {
                                         }
                                         resolve(this.user);
                                     } else {
-                                        console.warn('You are not fully registered yet.');
+                                        this.log.warn('You are not fully registered yet.');
                                         reject('default');
                                     }
 
                                 }).catch((e) => {
-                                    console.warn('Cannot get subscription at the moment, please try to subscribe.', e);
+                                    this.log.warn('Cannot get subscription at the moment, please try to subscribe.', e);
                                     reject('default');
                                 });
 
                             }).catch((e) => {
-                                console.error('Service Worker Cannot enter ready state', e);
+                                this.log.error('Service Worker Cannot enter ready state', e);
                                 reject('error');
                             });
 
                         }).catch((e) => {
-                            console.error('Cannot initialize service worker', e);
+                            this.log.error('Cannot initialize service worker', e);
                             reject('error');
                         });
                         break;
 
                     default:
-                        console.error('Unprocessable permission: ' + Notification.permission);
+                        this.log.error('Unprocessable permission: ' + Notification.permission);
                         reject('error');
                 }
             } else if (this.platform === 'SAFARI') {
@@ -214,14 +214,14 @@ export default class extends Base {
                             }
                             break;
                         default:
-                            console.error('Unprocessable permission: ' + permissionData.permission)
+                            this.log.error('Unprocessable permission: ' + permissionData.permission)
                             reject('error');
                     }
                 }).catch(() => {
                     reject('error');
                 });
             } else {
-                console.warn('Platform isn\'t supported');
+                this.log.warn('Platform isn\'t supported');
                 reject('error');
             }
         });
@@ -257,7 +257,7 @@ export default class extends Base {
                                             registration.pushManager.subscribe({userVisibleOnly: true}).then((subscription) => {
 
                                                 if (!subscription) {
-                                                    console.error('Cannot access subscription object to subscribe.');
+                                                    this.log.error('Cannot access subscription object to subscribe.');
                                                     return reject('error');
                                                 }
 
@@ -271,7 +271,7 @@ export default class extends Base {
                                                 }).then((result) => {
 
                                                     if (result.status !== 200) {
-                                                        console.error('Subscribe API fetch error!', result);
+                                                        this.log.error('Subscribe API fetch error!', result);
                                                         return reject('error');
                                                     }
 
@@ -293,45 +293,45 @@ export default class extends Base {
                                                         }).then(() => {
                                                             resolve(this.user);
                                                         }).catch((e) => {
-                                                            console.error('Cannot send message to service worker!', e);
+                                                            this.log.error('Cannot send message to service worker!', e);
                                                             reject('error');
                                                         });
 
                                                     }).catch((e) => {
-                                                        console.error('Api return is not a valid JSON.', e);
+                                                        this.log.error('Api return is not a valid JSON.', e);
                                                         reject('error')
                                                     });
 
                                                 }).catch((e) => {
-                                                    console.error('subscribe fetch error', e);
+                                                    this.log.error('subscribe fetch error', e);
                                                     reject('error');
                                                 });
 
                                             }).catch((e) => {
-                                                console.error('Unable to subscribe to push.', e);
+                                                this.log.error('Unable to subscribe to push.', e);
                                                 reject('error');
                                             });
 
                                         }).catch((e) => {
-                                            console.error('Service Worker Cannot enter ready state', e);
+                                            this.log.error('Service Worker Cannot enter ready state', e);
                                             reject('error');
                                         });
 
                                     }).catch((e) => {
-                                        console.error('Cannot initialize service worker', e);
+                                        this.log.error('Cannot initialize service worker', e);
                                         reject('error');
                                     });
                                     break;
 
                                 default:
-                                    console.error('Unprocessable permission: '+permission);
+                                    this.log.error('Unprocessable permission: '+permission);
                                     reject('error');
                             }
                         });
                         break;
 
                     default:
-                        console.error('Unprocessable permission: ' + Notification.permission);
+                        this.log.error('Unprocessable permission: ' + Notification.permission);
                         reject('error');
                 }
             } else if (this.platform === 'SAFARI') {
@@ -369,17 +369,17 @@ export default class extends Base {
                                         resolve(this.user);
 
                                     } else {
-                                        console.error(json.message);
+                                        this.log.error(json.message);
                                         reject('error');
                                     }
                                 }, (e) => {
-                                    console.error('Cannot register extra data for this device!', e);
+                                    this.log.error('Cannot register extra data for this device!', e);
                                     reject('error');
                                 });
                             } else if (permissionData.permission === 'denied') {
                                 reject('denied');
                             } else {
-                                console.error('Unprocessable permission: '+permissionData.permission);
+                                this.log.error('Unprocessable permission: '+permissionData.permission);
                                 reject('error');
                             }
                         }
@@ -388,7 +388,7 @@ export default class extends Base {
                     reject('error');
                 });
             } else {
-                console.error('Platform isn\'t supported');
+                this.log.error('Platform isn\'t supported');
                 reject('error');
             }
         });
@@ -414,7 +414,7 @@ export default class extends Base {
                                 registration.pushManager.getSubscription().then((subscription) => {
 
                                     if (!subscription) {
-                                        console.error('Cannot access subscription object to un-subscribe.');
+                                        this.log.error('Cannot access subscription object to un-subscribe.');
                                         return reject('error');
                                     }
 
@@ -432,41 +432,41 @@ export default class extends Base {
                                             resolve();
 
                                         }).catch((e) => {
-                                            console.error('Cannot un-register this user on DB. It will be removed in next dry-run!', e);
+                                            this.log.error('Cannot un-register this user on DB. It will be removed in next dry-run!', e);
                                             reject('error');
                                         });
 
                                     }).catch((e) => {
-                                        console.error('Unsubscription error: ', e);
+                                        this.log.error('Unsubscription error: ', e);
                                         reject('error');
                                     });
 
                                 }).catch((e) => {
-                                    console.error('Error thrown while unsubscribing from push messaging.', e);
+                                    this.log.error('Error thrown while unsubscribing from push messaging.', e);
                                     reject('error');
                                 });
 
                             }).catch((e) => {
-                                console.error('Service Worker Cannot enter ready state', e);
+                                this.log.error('Service Worker Cannot enter ready state', e);
                                 reject('error');
                             });
 
                         }).catch((e) => {
-                            console.error('Cannot initialize service worker', e);
+                            this.log.error('Cannot initialize service worker', e);
                             reject('error');
                         });
                         break;
 
                     default:
-                        console.error('Unprocessable permission: '+Notification.permission);
+                        this.log.error('Unprocessable permission: '+Notification.permission);
                         reject('error');
                 }
 
             } else if (this.platform === 'SAFARI') {
-                console.error('Safari cannot un-subscribe via javascript');
+                this.log.error('Safari cannot un-subscribe via javascript');
                 reject('error');
             } else {
-                console.error('Platform isn\'t supported');
+                this.log.error('Platform isn\'t supported');
                 reject('error');
             }
 

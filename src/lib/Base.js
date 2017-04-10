@@ -1,6 +1,7 @@
 //import Events from '../helpers/Events';
 import Support from '../helpers/Support';
 import Params from '../helpers/Params';
+import Log from '../helpers/Log';
 
 export default class {
 
@@ -9,6 +10,7 @@ export default class {
         this.support = new Support();
         this.params = new Params();
         this.platform = this.support.getPlatform();
+        this.log = new Log(this.platform);
     }
 
     _encodeParams(data) {
@@ -25,7 +27,7 @@ export default class {
         if (typeof data === 'string') {
             return data;
         }
-        console.error('Parameters cannot be parsed. Use "object" or a url encoded "string". Unknown type...', typeof data);
+        this.log.error('Parameters cannot be parsed. Use "object" or a url encoded "string". Unknown type...', typeof data);
         return false;
     }
 

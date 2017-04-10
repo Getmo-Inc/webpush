@@ -51,7 +51,7 @@ export default class {
             if (window.hasOwnProperty('safari')) {
                 return 'SAFARI';
             }
-            console.warn('Probably the user is using a mobile safari browser! "safari" object is not present on "window"');
+            this.log.warn('Probably the user is using a mobile safari browser! "safari" object is not present on "window"');
         }
         return false;
     }
@@ -87,43 +87,43 @@ export default class {
 
     checkAllFeatures() {
         if (!this._checkFeature('postMessage')) {
-            console.warn('"postMessage" is not supported.');
+            this.log.warn('"postMessage" is not supported.');
             return;
         }
         if (!this._checkFeature('Notification')) {
-            console.warn('"Notification" is not supported.');
+            this.log.warn('"Notification" is not supported.');
             return;
         }
         if (!this._checkFeature('localStorage')) {
-            console.warn('"localStorage" is not supported.');
+            this.log.warn('"localStorage" is not supported.');
             return;
         }
 
         let platform = this.getPlatform();
         if (platform === 'CHROME' || platform === 'FIREFOX') {
             if (!this._checkFeature('permission')) {
-                console.warn('This browser dont support Notifications');
+                this.log.warn('This browser dont support Notifications');
                 return;
             }
             if (!this._checkFeature('showNotification')) {
-                console.warn('"showNotification" is not supported.');
+                this.log.warn('"showNotification" is not supported.');
                 return;
             }
             if (!this._checkFeature('serviceWorker')) {
-                console.warn('"serviceWorker" is not supported.');
+                this.log.warn('"serviceWorker" is not supported.');
                 return;
             }
             if (!this._checkFeature('PushManager')) {
-                console.warn('"PushManager" is not supported.');
+                this.log.warn('"PushManager" is not supported.');
                 return;
             }
             if (!this._checkFeature('indexedDB')) {
-                console.warn('"indexedDB" is not supported.');
+                this.log.warn('"indexedDB" is not supported.');
                 return;
             }
         } else if (platform === 'SAFARI') {
             if (!this._checkFeature('pushNotification')) {
-                console.warn('"pushNotification" is not supported.');
+                this.log.warn('"pushNotification" is not supported.');
                 return;
             }
         }
