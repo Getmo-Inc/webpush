@@ -1,7 +1,7 @@
 {
   "private": true,
-  "name": "Smartpush Webpush Lib",
-  "version": "3.0.0",
+  "name": "Smartpush Webpush Library",
+  "version": "3.0.1",
   "description": "Webpush Javascript Client Library",
   "main": "src/entry/index.js",
   "keywords": [
