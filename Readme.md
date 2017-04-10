@@ -382,8 +382,8 @@ window.addEventListener('load', function() {
 - Notifications API
 
 ### Supported Browsers
-- Chrome 48+
-- Firefox 44+
+- Chrome
+- Firefox
 - Safari (OS X Mavericks - 10.9+)
 
 ### Support

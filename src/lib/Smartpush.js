@@ -5,7 +5,7 @@ export default class extends Base {
 
     constructor() {
         super();
-        this.version = '3.0.0';
+        this.version = '3.0.1';
     }
 
     _getAppID(setup){
