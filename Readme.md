@@ -8,7 +8,7 @@ This project integrates off-site webpush notification system with **Smartpush AP
 
 ### How to install it?
 
-Download "Webpush Installation Files" (*.zip) from [https://cdn.getmo.com.br/webpush-pack-3.0.2.zip](https://cdn.getmo.com.br/webpush-pack-2.1.1.zip) and install the following files in the root of your website:
+Download "Webpush Installation Files" (*.zip) from [https://cdn.getmo.com.br/webpush-pack-3.0.2.zip](https://cdn.getmo.com.br/webpush-pack-3.0.2.zip) and install the following files in the root of your website:
 - webpush-chrome-manifest.json
 - webpush-service-worker.js
 - webpush-default-icon.png (customize the image before installation)
