@@ -19,6 +19,7 @@ After installation, load the current SDK version in your html page:
 and you are ready to go!
 ```html
 <script src="https//cdn.getmo.com.br/webpush-lib-3.0.2.min.js"></script>
+<link rel="manifest" href="/webpush-chrome-manifest.json">
 ```
  
 
